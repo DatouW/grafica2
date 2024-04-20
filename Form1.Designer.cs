@@ -1,4 +1,8 @@
 ﻿
+using OpenTK;
+using System;
+using System.Windows.Forms;
+
 namespace Graphic3D
 {
     partial class Form1
@@ -37,5 +41,6 @@ namespace Graphic3D
 
         #endregion
     }
+
 }
 

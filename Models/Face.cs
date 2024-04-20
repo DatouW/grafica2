@@ -1,8 +1,9 @@
 ﻿using Graphic3D.Utils;
-
+using OpenTK.Graphics.OpenGL;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
+
 
 namespace Graphic3D.Models
 {
@@ -12,27 +13,22 @@ namespace Graphic3D.Models
         public List<Vertex> Points { get; private set; }
         public Color Color { get; set; } = Color.White;
         public MyPrimitiveType PType { get; set; } = MyPrimitiveType.Triangles;
+
         public Face()
         {
             Points = new List<Vertex>();
             
         }
-
-        public Face(List<Vertex> points)
+        public Face(List<Vertex> points, MyPrimitiveType type = MyPrimitiveType.Triangles)
         {
-            Points = points;
+            Points = points ?? throw new ArgumentNullException(nameof(points));
+            PType = type;
         }
 
         public Face(List<Vertex> points,Color color, MyPrimitiveType type = MyPrimitiveType.Triangles)
         {
-            Points = points;
+            Points = points ?? throw new ArgumentNullException(nameof(points)); 
             Color = color;
-            PType = type;
-        }
-
-        public Face(List<Vertex> points,MyPrimitiveType type = MyPrimitiveType.Triangles)
-        {
-            Points = points;
             PType = type;
         }
 
@@ -61,10 +57,21 @@ namespace Graphic3D.Models
             return Points[index];
         }
 
-        // Borra los datos de los vértices
         public void ClearPoints()
         {
             Points.Clear();
+        }
+
+        public void Draw(Vertex partCenter)
+        {
+            GL.Begin(PrimitiveType.TriangleFan);
+            GL.Color3(Color);
+
+            foreach (var point in Points)
+            {
+                GL.Vertex3(partCenter.X + point.X, partCenter.Y + point.Y, partCenter.Z + point.Z); 
+            }
+            GL.End();
         }
 
     }

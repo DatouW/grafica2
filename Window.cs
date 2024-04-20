@@ -1,17 +1,16 @@
 ﻿using System;
 
-
 using OpenTK.Graphics.OpenGL;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Input;
 using System.Collections.Generic;
 
-
-
 using Graphic3D.Utils;
 using Graphic3D.Models;
 using Graphic3D.Rendering;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace Graphic3D
 {
@@ -26,26 +25,59 @@ namespace Graphic3D
         private float pitch = 0f; // Ángulo de rotación en pitch
 
         private float angle = 0.0f;
-        private Stage stage;
+        private Scene scene;
 
+        //private Button saveButton, loadButton;
 
-
-        public Window(int width = 800, int height = 500, string title = "Televisor 3D")
+        public Window(int width = 800, int height = 500, string title = "Objecto 3D")
             : base(width, height, GraphicsMode.Default, title)
         {
-
+            
         }
 
         protected override void OnLoad(EventArgs e)
         {
             GL.ClearColor(0.3f, 0.4f, 0.5f, 1f);
             GL.Enable(EnableCap.DepthTest);
-            Dictionary<string, IObject> objs = new Dictionary<string, IObject>();
-            objs.Add("televisor", new Televisor(new Vertex(32f, 18f, 2f), new Vertex(4f, 8f, 2f), new Vertex(0f, 0f, 0f)));
-            objs.Add("florero",new Vase(4f,8f,8f,new Vertex(30f,0,0) ));
-            objs.Add("parlante", new Speaker(new Vertex(10f, 20f, 15f),new Vertex(-30f,0,0)));
-            stage = new Stage(objs,new OpenTKRenderer());
+
+            initObjects();
+            
             base.OnLoad(e);
+        }
+
+        private void initObjects()
+        {
+            Dictionary<int, Face> cuello = new Dictionary<int, Face>();
+            cuello.Add(1, new Face(PlanarGeometry.createCurvedSurface(4f, 2f), Color.BlueViolet, MyPrimitiveType.TriangleStrip));
+
+            Dictionary<string, Part> vaseParts = new Dictionary<string, Part>();
+            vaseParts.Add("cuello", new Part(cuello, new Vertex(0f, 0f, 0f)));
+            vaseParts.Add("cuerpo", new Part(StandardGeometry.CreateSphere(4f, 36), new Vertex(0f, -3f, 0f)));
+
+            Dictionary<string, Part> tvParts = new Dictionary<string, Part>();
+            tvParts.Add("pantalla", new Part(StandardGeometry.CreateCube(32f, 18f, 4f, Color.Black)));
+            tvParts.Add("soporte", new Part(StandardGeometry.CreateCube(4f, 8f, 4f, Color.Brown), new Vertex(0f, -13f, 0f)));
+
+            Dictionary<int, Face> diseno = new Dictionary<int, Face>();
+            diseno.Add(1, new Face(PlanarGeometry.createCircle(3f, new Vertex(0f, 0f, 0f)), Color.AntiqueWhite, MyPrimitiveType.TriangleFan));
+            
+            Dictionary<string, Part> speakerParts = new Dictionary<string, Part>();
+            speakerParts.Add("cuerpo", new Part(StandardGeometry.CreateCube(8f, 10f, 6f, Color.Chocolate)));
+            speakerParts.Add("diseno", new Part(diseno, new Vertex(0f, -1f, 3.25f)));
+
+
+            Dictionary<string, IObject> objs = new Dictionary<string, IObject>();
+
+
+            objs.Add("televisor", new IObject(tvParts, new Vertex(0f, 0, 0)));
+            objs.Add("florero", new IObject(vaseParts, new Vertex(12f, 16f, 0)));
+            objs.Add("parlanteIzq", new IObject(speakerParts, new Vertex(-20f, -12f, 0)));
+            objs.Add("parlanteDer", new IObject(speakerParts, new Vertex(20f, -12f, 0)));
+
+            scene = new Scene(objs, new OpenTKRenderer(), new Vertex(0f, 0f, 0f));
+            //scene = JsonHelper.LoadObjectFromJsonFile<Scene>(JsonHelper.GetCurrentDirectory() + "\\scene.json");
+            scene.Renderer = new OpenTKRenderer();
+            //JsonHelper.SaveObjectToJsonFile(scene, JsonHelper.GetCurrentDirectory() + "\\scene.json"); 
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -58,11 +90,12 @@ namespace Graphic3D
 
             //GL.Rotate(angle, 1.0, 0.0, 0.0);
 
-            stage.Render();
-
+            //scene.Render();
+            scene.Draw();
+            
             angle += 1.0f;
-            if (angle > 360)
-                angle -= 360.0f;
+            if (angle > 90)
+                angle -= 90.0f;
 
             Context.SwapBuffers();
             base.OnRenderFrame(e);
@@ -79,29 +112,71 @@ namespace Graphic3D
              Matrix4 viewMatrix = Matrix4.LookAt(cameraPosition, cameraPosition + cameraFront, cameraUp);
              GL.MatrixMode(MatrixMode.Modelview);
              GL.LoadMatrix(ref viewMatrix);*/
+  
+        }
 
-            /*Dictionary<int, Face> faceTop = new Dictionary<int, Face>();
-            Dictionary<int, Face> faceBottom = new Dictionary<int, Face>();
-            Dictionary<int, Face> faceSide = new Dictionary<int, Face>();
-            faceTop.Add(1,new Face(PlanarGeometry.createCircle(10f,0f,0f,20f)));
-            faceBottom.Add(2, new Face(PlanarGeometry.createCircle(10f, 0f, 0f, 20f)));
-            faceSide.Add(3, new Face(PlanarGeometry.createCurvedSurface(20f, 10f)));
-            Dictionary<string, Part> parts = new Dictionary<string, Part>();
-            
-            parts.Add("pantalla", new Part(faceSide,new Vertex(-20f,0f,0f),MyPrimitiveType.TriangleStrip));
-            parts.Add("bottom", new Part(faceBottom, new Vertex(-20f, 0f, 0f), MyPrimitiveType.TriangleFan));
-            parts.Add("top", new Part(faceTop, new Vertex(-20f, 0f, 0f), MyPrimitiveType.TriangleFan));*/
+        protected override void OnKeyDown(KeyboardKeyEventArgs e)
+        {
+            base.OnKeyDown(e);
 
-            //parts.Add("soporte", new Part(DrawCube(4f, 9f, 2f), new Vertex(0f, -13.5f, 0f)));
-            //Televisor tv = new Televisor(new Vertex(0f, 0f, 0f),parts);
-            //tv.Render(new OpenTKRenderer());
+            if (e.Control && e.Key == Key.S) // Ctrl + S
+            {
+                SaveFile();
+            }
+            else if (e.Control && e.Key == Key.O) // Ctrl + O
+            {
+                LoadFile();
+            }
+        }
 
-            //Televisor tv = new Televisor(new Vertex(32f, 18f, 2f), new Vertex(4f, 8f, 2f), new Vertex(20f, 0f, 0f));
+        private void SaveFile()
+        {
 
-            //Speaker tv = new Speaker(new Vertex(10f,20f,15f));
-            //tv.Render(new OpenTKRenderer());
+            string filePath = null;
 
+            using (var saveFileDialog = new SaveFileDialog())
+            {
+                saveFileDialog.Filter = "JSON files (*.json)|*.json";
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    filePath = saveFileDialog.FileName;
+                }
+            }
+            Console.WriteLine(filePath);
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                JsonHelper.SaveObjectToJsonFile<Scene>(scene, filePath);
+                Console.WriteLine("JSON data saved successfully.");
+            }
+        }
 
+        private void LoadFile()
+        {
+            // Console.WriteLine("load button click");
+            string filePath = null;
+
+            using (var openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Filter = "JSON files (*.json)|*.json";
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    filePath = openFileDialog.FileName;
+                }
+            }
+            Console.WriteLine(filePath);
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                try
+                {
+                    scene = JsonHelper.LoadObjectFromJsonFile<Scene>(filePath);
+                    scene.Renderer = new OpenTKRenderer();
+                    Console.WriteLine("JSON data loaded successfully.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error loading JSON: {ex.Message}");
+                }
+            }
         }
 
         protected override void OnResize(EventArgs e)
@@ -148,6 +223,8 @@ namespace Graphic3D
         }
 
         
+
+
 
     }
 }

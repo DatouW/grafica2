@@ -41,14 +41,15 @@ namespace Graphic3D.Rendering
 
         public void Draw(IObject instance)
         {
-            
+
             foreach (var partDic in instance.Parts)
             {
                 var part = partDic.Value;
+                
                 GL.PushMatrix();
-                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                
                 GL.Translate(part.Center.X,part.Center.Y,part.Center.Z);
-                GL.Rotate(20f, 20f, 20f, 0);
+                //GL.Rotate(20f, 20f, 20f, 0);
                 PrimitiveType glPrimitiveType;
                 if (EnumToOpenGLMapping.TryGetValue(part.PType, out glPrimitiveType))
                 {
@@ -64,5 +65,36 @@ namespace Graphic3D.Rendering
             }
             
         }
+
+        public void Draw(IObject obj, Vertex objCenter)
+        {
+            foreach (var partEntry in obj.Parts)
+            {
+                var part = partEntry.Value;
+                var partCenter = part.Center + objCenter;
+
+                foreach (var faceEntry in part.Faces)
+                {
+                    Face face = faceEntry.Value;
+                 
+                    if (EnumToOpenGLMapping.TryGetValue(face.PType, out PrimitiveType glPrimitiveType))
+                    {
+                        GL.Begin(glPrimitiveType);
+                        GL.Color3(face.Color);
+                        foreach (var point in face.Points)
+                        { 
+                            GL.Vertex3(partCenter.X + point.X, partCenter.Y + point.Y, partCenter.Z + point.Z);
+                        }
+
+                        GL.End();
+                    }
+                    else
+                    {
+                        throw new ArgumentException($"Unsupported primitive type: {face.PType}");
+                    }
+                }
+            }
+        }
+
     }
 }

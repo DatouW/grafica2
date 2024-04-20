@@ -19,6 +19,8 @@ namespace Graphic3D.Utils
                 float phi1 = MathHelper.Pi * i / segments;
                 float phi2 = MathHelper.Pi * (i + 1) / segments;
                 Face face = new Face();
+                face.PType = MyPrimitiveType.TriangleFan;
+                face.Color = Color.White;
                 for (int j = 0; j <= segments; j++)
                 {
                     float theta1 = MathHelper.TwoPi * j / segments;
@@ -41,7 +43,7 @@ namespace Graphic3D.Utils
             return faces;
         }
 
-        public static Dictionary<int, Face> CreateCube(float width, float height, float length)
+        public static Dictionary<int, Face> CreateCube(float width, float height, float length, Color color)
         {
             Dictionary<int, Face> faces = new Dictionary<int, Face>();
 
@@ -79,6 +81,7 @@ namespace Graphic3D.Utils
             {
                 Face face = new Face();
                 //face.Color = RandomColor();
+                face.Color = color;
                 for (int j = 0; j < 6; j++)
                 {
 

@@ -16,7 +16,10 @@ namespace Graphic3D.Utils
             Y = y;
             Z = z;
         }
-
+        public static Vertex operator +(Vertex v1, Vertex v2)
+        {
+            return new Vertex(v1.X + v2.X, v1.Y + v2.Y, v1.Z + v2.Z);
+        }
         public override string ToString()
         {
             return $"({X}, {Y}, {Z})";
