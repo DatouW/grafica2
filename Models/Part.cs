@@ -10,7 +10,7 @@ namespace Graphic3D.Models
     public class Part
     {
         // Almacena las caras de una parte, el id de la cara (como un número), y el valor = Face
-        public Dictionary<int, Face> Faces { get; private set; } 
+        public Dictionary<int, Face> Faces { get; private  set; } 
         public Vertex Center { get; set; } = new Vertex(0f, 0f, 0f);
         public MyPrimitiveType PType { get; set; } = MyPrimitiveType.Triangles;
 
@@ -19,7 +19,7 @@ namespace Graphic3D.Models
             Faces = new Dictionary<int, Face>();
         }
 
-        public Part(Dictionary<int, Face> faces, MyPrimitiveType type)
+        public Part(Dictionary<int, Face> faces, MyPrimitiveType type = MyPrimitiveType.Triangles)
         {
             Faces = faces;
             PType = type;
