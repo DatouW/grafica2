@@ -18,7 +18,9 @@ namespace Graphic3D.Models
         {
 
         }
+
         
+
         public Scene(Dictionary<string, IObject> objects, IRenderer renderer)
         {
             Objects = objects ?? throw new ArgumentNullException(nameof(objects));
@@ -41,7 +43,7 @@ namespace Graphic3D.Models
         {
             return Objects.ContainsKey(key)? Objects[key] : throw new KeyNotFoundException($"No se encontró un objeto con la clave '{key}' en el diccionario Objects.");
         }
-
+    
         public void Draw()
         {
             foreach (var o in Objects)
