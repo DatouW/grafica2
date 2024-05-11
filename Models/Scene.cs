@@ -11,9 +11,6 @@ namespace Graphic3D.Models
         public Dictionary<string, IObject> Objects { get; set; } = new Dictionary<string, IObject>();
         public Vertex Center { get; private set; } = new Vertex(0f,0f,0f);
         
-        [JsonIgnore] // Ignora la propiedad Renderer durante la serialización
-        public IRenderer Renderer { get; set; }
-
         public Scene()
         {
 
@@ -21,16 +18,16 @@ namespace Graphic3D.Models
 
         
 
-        public Scene(Dictionary<string, IObject> objects, IRenderer renderer)
+        public Scene(Dictionary<string, IObject> objects)
         {
             Objects = objects ?? throw new ArgumentNullException(nameof(objects));
-            Renderer = renderer ?? throw new ArgumentNullException(nameof(renderer));
+            
         }
 
-        public Scene(Dictionary<string, IObject> objects, IRenderer renderer,Vertex center)
+        public Scene(Dictionary<string, IObject> objects,Vertex center)
         {
             Objects = objects ?? throw new ArgumentNullException(nameof(objects));
-            Renderer = renderer ?? throw new ArgumentNullException(nameof(renderer));
+            
             Center = center;
         }
 
@@ -39,26 +36,45 @@ namespace Graphic3D.Models
             Objects.Add(key, o);
         }
 
-        public IObject GetOject(string key)
+        public IObject GetObject(string key)
         {
             return Objects.ContainsKey(key)? Objects[key] : throw new KeyNotFoundException($"No se encontró un objeto con la clave '{key}' en el diccionario Objects.");
         }
-    
-        public void Draw()
+
+        public void Translate(float x=0, float y=0, float z=0)
         {
-            foreach (var o in Objects)
+            //Console.WriteLine("scene center: "+ Center);
+            foreach (var o in Objects.Values)
             {
-                o.Value.Draw(Center);
+                o.Translate(Center,x,y,z);
             }
         }
 
-        public void Render()
+        public void Scale(float x, float y, float z)
         {
-            foreach (var o in Objects)
+            foreach (var o in Objects.Values)
             {
-                Renderer.Draw(o.Value,o.Value.Center + Center);
+                o.Scale(x, y, z);
             }
         }
+
+        public void Rotate(float x, float y, float z)
+        {
+            foreach (var obj in Objects.Values)
+            {
+                obj.Rotate(x, y, z);
+            }
+        }
+
+        public void Draw()
+        {
+            foreach (var o in Objects.Values)
+            {
+                o.Draw();
+            }
+        }
+
+        
 
         public override string ToString()
         {

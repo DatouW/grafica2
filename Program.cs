@@ -19,11 +19,14 @@ namespace Graphic3D
         static void Main(string[] args)
         {
 
-            using (Window game = new Window())
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new Form1());
+            /*using (Window game = new Window())
             {
                 game.Run();
-            }
-            
+            }*/
+
 
         }
         static void test1()

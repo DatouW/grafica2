@@ -35,11 +35,53 @@ namespace Graphic3D.Models
             return Parts[key];
         }
 
-        public void Draw(Vertex sceneCenter)
+        public void Translate(Vertex center, float x = 0, float y = 0, float z = 0)
         {
+            //Console.WriteLine("object center: "+ Center);
+            foreach (var part in Parts.Values)
+            {
+                part.Translate(center + Center, x, y, z);
+            }
+        }
+
+        public void Translate(float x, float y, float z)
+        {
+            foreach (var part in Parts.Values)
+            {
+                part.Translate(Center, x, y, z);
+            }
+        }
+
+        public void Scale(float x, float y, float z)
+        {
+            foreach (var part in Parts.Values)
+            {
+                part.Scale(x, y, z);
+            }
+        }
+
+        public void Rotate(float x, float y, float z)
+        {
+            foreach (var part in Parts.Values)
+            {
+                part.Rotate(x, y, z);
+            }
+        }
+
+        public void Rotate(Vertex center, float x, float y, float z)
+        {
+            foreach (var part in Parts.Values)
+            {
+                part.Rotate(center,x, y, z);
+            }
+        }
+
+        public void Draw()
+        {
+           
             foreach (var part in Parts)
             {
-                part.Value.Draw(sceneCenter + Center);
+                part.Value.Draw();
             }
         }
 

@@ -21,30 +21,44 @@ namespace Graphic3D.Utils
         //Serializes an object of type T and saves it to a JSON file specified by filePath.
         public static void SaveObjectToJsonFile<T>(T obj, string filePath)
         {
-            string json = SerializeObject(obj);
-
-            string directoryPath = Path.GetDirectoryName(filePath);
-            if (!Directory.Exists(directoryPath))
+            try
             {
-                Directory.CreateDirectory(directoryPath);
-            }
+                string json = SerializeObject(obj);
 
-            
-            File.WriteAllText(filePath, json);
+                /*string directoryPath = Path.GetDirectoryName(filePath);
+                if (!Directory.Exists(directoryPath))
+                {
+                    throw new DirectoryNotFoundException($"Directory not found: {directoryPath}");
+                }*/
+
+                File.WriteAllText(filePath, json);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving object to JSON file: {ex.Message}");
+            }
         }
 
-        // Loads a JSON file specified by filePath and deserializes its contents into an object of type T.
         public static T LoadObjectFromJsonFile<T>(string filePath)
         {
-            string json;
-
-            using (StreamReader sr = new StreamReader(filePath))
+            try
             {
-                json = sr.ReadToEnd();
-            }
+                string json;
 
-            return DeserializeObject<T>(json);
+                using (StreamReader sr = new StreamReader(filePath))
+                {
+                    json = sr.ReadToEnd();
+                }
+
+                return DeserializeObject<T>(json);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading object from JSON file: {ex.Message}");
+                return default; 
+            }
         }
+
 
         public static string GetCurrentDirectory()
         {

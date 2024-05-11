@@ -2,6 +2,7 @@
 
 using Graphic3D.Rendering;
 using Graphic3D.Utils;
+using System;
 using System.Collections.Generic;
 
 namespace Graphic3D.Models
@@ -43,11 +44,53 @@ namespace Graphic3D.Models
             Faces.Clear();
         }
 
-        public void Draw(Vertex objCenter)
+        public void Translate(Vertex center, float x=0, float y=0, float z=0)
+        {
+            //Console.WriteLine("part center: " + Center);
+            foreach (var face in Faces.Values)
+            {
+                face.Translate(center + Center,x, y, z);
+            }
+        }
+
+        public void Translate(float x = 0, float y = 0, float z = 0)
+        {
+            
+            foreach (var face in Faces.Values)
+            {
+                face.Translate(Center, x, y, z);
+            }
+        }
+
+        public void Scale(float x, float y, float z)
+        {
+            foreach (var face in Faces.Values)
+            {
+                face.Scale(x, y, z);
+            }
+        }
+
+        public void Rotate(float x, float y, float z)
+        {
+            foreach (var face in Faces.Values)
+            {
+                face.Rotate(x, y, z);
+            }
+        }
+
+        public void Rotate(Vertex center, float x, float y, float z)
+        {
+            foreach (var face in Faces.Values)
+            {
+                face.Rotate(center, x, y, z);
+            }
+        }
+
+        public void Draw()
         {
             foreach (var face in Faces)
             {
-                face.Value.Draw(objCenter + Center);
+                face.Value.Draw();
             }
         }
 
