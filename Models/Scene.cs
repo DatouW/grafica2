@@ -10,18 +10,22 @@ namespace Graphic3D.Models
     {
         public Dictionary<string, IObject> Objects { get; set; } = new Dictionary<string, IObject>();
         public Vertex Center { get; private set; } = new Vertex(0f,0f,0f);
-        
+        private Vertex _center = new Vertex(0f, 0f, 0f);
+
         public Scene()
         {
 
         }
 
-        
-
         public Scene(Dictionary<string, IObject> objects)
         {
             Objects = objects ?? throw new ArgumentNullException(nameof(objects));
             
+        }
+
+        public Scene( Vertex center)
+        {
+            Center = center;
         }
 
         public Scene(Dictionary<string, IObject> objects,Vertex center)
@@ -33,20 +37,21 @@ namespace Graphic3D.Models
 
         public void AddObject(string key, IObject o)
         {
+            o.Center += Center;
             Objects.Add(key, o);
         }
 
         public IObject GetObject(string key)
         {
-            return Objects.ContainsKey(key)? Objects[key] : throw new KeyNotFoundException($"No se encontró un objeto con la clave '{key}' en el diccionario Objects.");
+            return Objects.ContainsKey(key)? Objects[key] : null;
         }
 
         public void Translate(float x=0, float y=0, float z=0)
         {
-            //Console.WriteLine("scene center: "+ Center);
+            _center = Center + new Vertex(x, y, z);
             foreach (var o in Objects.Values)
             {
-                o.Translate(Center,x,y,z);
+                o.Translate(x,y,z);
             }
         }
 
@@ -58,11 +63,11 @@ namespace Graphic3D.Models
             }
         }
 
-        public void Rotate(float x, float y, float z)
+        public void Rotate(Vertex center,float x, float y, float z)
         {
             foreach (var obj in Objects.Values)
             {
-                obj.Rotate(x, y, z);
+                obj.Rotate(center,x, y, z);
             }
         }
 

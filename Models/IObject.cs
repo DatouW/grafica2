@@ -10,6 +10,7 @@ namespace Graphic3D.Models
     {
         public Dictionary<string, Part> Parts { get; private set; }
         public Vertex Center { get; set; } = new Vertex(0f, 0f, 0f);
+        private Vertex _center = new Vertex(0f, 0f, 0f);
 
         public IObject() {
             Parts = new Dictionary<string, Part>();
@@ -18,7 +19,14 @@ namespace Graphic3D.Models
         {
             Parts = parts ?? throw new ArgumentNullException(nameof(parts));
         }
-       
+
+        public IObject(Vertex center)
+        {
+
+            Parts = new Dictionary<string, Part>();
+            Center = center;
+        }
+
         public IObject(Dictionary<string, Part> parts, Vertex center)
         {
 
@@ -28,6 +36,7 @@ namespace Graphic3D.Models
 
         public void addPart(string name, Part part)
         {
+            part.Center += Center;
             Parts.Add(name, part);
         }
         public Part getPart(string key)
@@ -40,15 +49,16 @@ namespace Graphic3D.Models
             //Console.WriteLine("object center: "+ Center);
             foreach (var part in Parts.Values)
             {
-                part.Translate(center + Center, x, y, z);
+                part.Translate(center, x, y, z);
             }
         }
 
-        public void Translate(float x, float y, float z)
+        public void Translate(float x=0, float y=0, float z=0)
         {
+            _center = Center + new Vertex(x, y, z);
             foreach (var part in Parts.Values)
             {
-                part.Translate(Center, x, y, z);
+                part.Translate(x, y, z);
             }
         }
 
@@ -59,6 +69,7 @@ namespace Graphic3D.Models
                 part.Scale(x, y, z);
             }
         }
+
 
         public void Rotate(float x, float y, float z)
         {

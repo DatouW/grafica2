@@ -11,6 +11,7 @@ using Graphic3D.Models;
 using Graphic3D.Rendering;
 using System.Drawing;
 using System.Windows.Forms;
+using Graphic3D.Examples;
 
 namespace Graphic3D
 {
@@ -32,77 +33,64 @@ namespace Graphic3D
         public Window(int width = 800, int height = 500, string title = "Objecto 3D")
             : base(width, height, GraphicsMode.Default, title)
         {
-            
+            // tamano de la pantalla
+            int screenWidth = DisplayDevice.Default.Width;
+            int screenHeight = DisplayDevice.Default.Height;
+
+            // centro de la pantalla
+            int windowX = (screenWidth - Width) / 2;
+            int windowY = (screenHeight - Height) / 2;
+            Location = new Point(windowX, windowY);
         }
 
         protected override void OnLoad(EventArgs e)
         {
+
             GL.ClearColor(0.3f, 0.4f, 0.5f, 1f);
             GL.Enable(EnableCap.DepthTest);
-
-            initObjects();
-            
+            InitObjects();
+            InitAnimation();
             base.OnLoad(e);
         }
 
-        private void initObjects()
+        private Animation animation;
+        private AnimationController animationController;
+        private IObject obj;
+        Models.Action action1;
+        private void InitAnimation()
         {
-            Dictionary<int, Face> cuello = new Dictionary<int, Face>();
-            cuello.Add(1, new Face(PlanarGeometry.createCurvedSurface(4f, 2f), Color.BlueViolet, MyPrimitiveType.TriangleStrip));
-
-            Dictionary<string, Part> vaseParts = new Dictionary<string, Part>();
-            vaseParts.Add("cuello", new Part(cuello, new Vertex(0f, 0f, 0f)));
-            vaseParts.Add("cuerpo", new Part(StandardGeometry.CreateSphere(4f, 36), new Vertex(0f, -3f, 0f)));
-
-            Dictionary<string, Part> tvParts = new Dictionary<string, Part>();
-            tvParts.Add("pantalla", new Part(StandardGeometry.CreateCube(32f, 18f, 4f, Color.Black)));
-            tvParts.Add("soporte", new Part(StandardGeometry.CreateCube(4f, 8f, 4f, Color.Brown), new Vertex(0f, -13f, 0f)));
-
-            Dictionary<int, Face> diseno = new Dictionary<int, Face>();
-            diseno.Add(1, new Face(PlanarGeometry.createCircle(3f, new Vertex(0f, 0f, 0f)), Color.AntiqueWhite, MyPrimitiveType.TriangleFan));
+            Part cube = new Part(StandardGeometry.CreateCube(4f, 4f, 4f,Color.Black));
+            obj = new IObject(new Vertex(-35f, 10f, 10f));
+            obj.addPart("cube", cube);
+            obj.Translate();
+            //VertexHelper.SetVertexToAbsObject(obj);
+            action1 = new Models.Action(obj,4, new Vector3(-13, 13, 0), 60,startPosition : new Vector3(-35f, 10f, 10f), finalPosition:new Vector3(-10f,10f,2f), positionOffset: new Vector3(-20f, 0f, 0f), rotationAngle: new Vector3(25f, 0f, 0f), scaleFactor: new Vector3(1f, 1f, 1f));
             
-            Dictionary<string, Part> speakerParts = new Dictionary<string, Part>();
-            speakerParts.Add("cuerpo", new Part(StandardGeometry.CreateCube(8f, 10f, 6f, Color.Chocolate)));
-            //speakerParts.Add("diseno", new Part(diseno, new Vertex(0f, -1f, 3.25f)));
-
-
-            Dictionary<string, IObject> objs = new Dictionary<string, IObject>();
-
-
-            //objs.Add("televisor", new IObject(tvParts, new Vertex(0f, 0, 0)));
-            //objs.Add("florero", new IObject(vaseParts, new Vertex(12f, 16f, 0)));
-            objs.Add("parlanteIzq", new IObject(speakerParts, new Vertex(10f, 20.0f, -10.0f)));
+            Models.Action action2 = new Models.Action(obj,4, new Vector3(-13, 13, 0), 60, startPosition: new Vector3(-10f, 10f, 2f), finalPosition: new Vector3(12f, 10.75f, 0f), positionOffset: new Vector3(-20f, 0f, 0f), rotationAngle: new Vector3(25f, 0f, 0f), scaleFactor: new Vector3(1f, 1f, 1f));
             
-            //objs.Add("parlanteDer", new IObject(speakerParts, new Vertex(20f, -12f, 0)));
+            animation = new Animation();
 
-            scene = new Scene(objs, new Vertex(0f, 0f, 0f));
-            //scene = JsonHelper.LoadObjectFromJsonFile<Scene>(JsonHelper.GetCurrentDirectory() + "\\scene.json");
-            //scene.Renderer = new OpenTKRenderer();
-            //JsonHelper.SaveObjectToJsonFile(scene, JsonHelper.GetCurrentDirectory() + "\\scene.json"); 
+            animation.AddAction(action1);
+            animation.AddAction(action2);
+            animationController = new AnimationController(animation);
         }
 
+        
+        
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             GL.LoadIdentity();
-            //GL.MatrixMode(MatrixMode.Modelview);
-
-            //GL.Translate(10.0f, 0.0f, -75.0f);
+            
+            GL.Translate(0.0f, 0.0f, -75.0f);
             //GL.Rotate(angle, 1.0, 0.0, 0.0);
 
-
-            //DrawCube();
-
-            //Part cir = new Part(StandardGeometry.CreateSphere(4f,36));
-
-            //cir.Draw(cir.Center);
-            //scene.Rotate(angle,45,0);
-
-            //scene.Translate();
-            //scene.Rotate(angle,45,0);
-           
-            //scene.Scale(2.0f, 2.0f, 2.0f);
+            //animation.Update((float)e.Time);
+            
+            //action1.Update((float)e.Time,obj);
+            //obj.Rotate(new Vertex(0f,0f,0f),angle,"x");
+            obj.Draw();
             scene.Draw();
 
             angle += 1.0f;
@@ -112,62 +100,8 @@ namespace Graphic3D
             Context.SwapBuffers();
             base.OnRenderFrame(e);
 
-
-            // Actualizar la dirección de la cámara
-            /* cameraFront = new Vector3(
-                 (float)(Math.Cos(MathHelper.DegreesToRadians(yaw)) * Math.Cos(MathHelper.DegreesToRadians(pitch))),
-                 (float)Math.Sin(MathHelper.DegreesToRadians(pitch)),
-                 (float)(Math.Sin(MathHelper.DegreesToRadians(yaw)) * Math.Cos(MathHelper.DegreesToRadians(pitch)))
-             );
-
-             // Configurar la matriz de vista para el movimiento de la cámara
-             Matrix4 viewMatrix = Matrix4.LookAt(cameraPosition, cameraPosition + cameraFront, cameraUp);
-             GL.MatrixMode(MatrixMode.Modelview);
-             GL.LoadMatrix(ref viewMatrix);*/
-  
         }
 
-        private void DrawCube()
-        {
-            GL.Begin(PrimitiveType.Quads);
-            GL.Color3(1.0, 1.0, 0.0);
-            GL.Vertex3(-10.0, 10.0, 10.0);
-            GL.Vertex3(-10.0, 10.0, -10.0);
-            GL.Vertex3(-10.0, -10.0, -10.0);
-            GL.Vertex3(-10.0, -10.0, 10.0);
-
-            GL.Color3(1.0, 0.0, 1.0);
-            GL.Vertex3(10.0, 10.0, 10.0);
-            GL.Vertex3(10.0, 10.0, -10.0);
-            GL.Vertex3(10.0, -10.0, -10.0);
-            GL.Vertex3(10.0, -10.0, 10.0);
-
-            GL.Color3(0.0, 1.0, 1.0);
-            GL.Vertex3(10.0, -10.0, 10.0);
-            GL.Vertex3(10.0, -10.0, -10.0);
-            GL.Vertex3(-10.0, -10.0, -10.0);
-            GL.Vertex3(-10.0, -10.0, 10.0);
-
-            GL.Color3(1.0, 0.0, 0.0);
-            GL.Vertex3(10.0, 10.0, 10.0);
-            GL.Vertex3(10.0, 10.0, -10.0);
-            GL.Vertex3(-10.0, 10.0, -10.0);
-            GL.Vertex3(-10.0, 10.0, 10.0);
-
-            GL.Color3(0.0, 1.0, 0.0);
-            GL.Vertex3(10.0, 10.0, -10.0);
-            GL.Vertex3(10.0, -10.0, -10.0);
-            GL.Vertex3(-10.0, -10.0, -10.0);
-            GL.Vertex3(-10.0, 10.0, -10.0);
-
-            GL.Color3(0.0, 0.0, 1.0);
-            GL.Vertex3(10.0, 10.0, 10.0);
-            GL.Vertex3(10.0, -10.0, 10.0);
-            GL.Vertex3(-10.0, -10.0, 10.0);
-            GL.Vertex3(-10.0, 10.0, 10.0);
-
-            GL.End();
-        }
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
         {
             base.OnKeyDown(e);
@@ -180,6 +114,50 @@ namespace Graphic3D
             {
                 LoadFile();
             }
+            else if (e.Control && e.Key == Key.X) // Ctrl + P
+            {
+                animationController.Pause();
+            }
+            else if (e.Control && e.Key == Key.C) // Ctrl + R
+            {
+                animationController.Stop();
+            }
+            else if (e.Control && e.Key == Key.Z) // Ctrl + I
+            {
+                animationController.Start();
+            }
+        }
+
+        
+
+        protected override void OnResize(EventArgs e)
+        {
+            float aspectRatio = (float)Width / Height;
+            float d = 50;
+
+            GL.Viewport(0, 0, Width, Height);
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadIdentity();
+
+            Matrix4 projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45), (float)Width / Height, 0.1f, 1000f);
+            GL.LoadMatrix(ref projectionMatrix);
+            //GL.Ortho(-d, d, -d, d, -d, d);
+            
+            /*if (aspectRatio >= 1.0f)
+            {
+                GL.Ortho(-d * aspectRatio, d * aspectRatio, -d, d, -d, d);
+            }
+            else
+            {
+                GL.Ortho(-d, d, -d / aspectRatio, d / aspectRatio, -d, d);
+            }*/
+
+            GL.MatrixMode(MatrixMode.Modelview);
+
+
+            //Console.WriteLine($"e: {Width}  {Height}");
+
+            base.OnResize(e);
         }
 
         private void SaveFile()
@@ -231,64 +209,51 @@ namespace Graphic3D
                 }
             }
         }
-
-        protected override void OnResize(EventArgs e)
-        {
-            float aspectRatio = (float)Width / Height;
-            float d = 50;
-
-            GL.Viewport(0, 0, Width, Height);
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadIdentity();
-
-            //Matrix4 projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45), (float)Width / Height, 0.1f, 100f);
-            //GL.LoadMatrix(ref projectionMatrix);
-            //GL.Ortho(-d, d, -d, d, -d, d);
-            if (aspectRatio >= 1.0f)
-            {
-                GL.Ortho(-d * aspectRatio, d * aspectRatio, -d, d, -d, d);
-            }
-            else
-            {
-                GL.Ortho(-d, d, -d / aspectRatio, d / aspectRatio, -d, d);
-            }
-
-            GL.MatrixMode(MatrixMode.Modelview);
-
-
-            //Console.WriteLine($"e: {Width}  {Height}");
-
-            base.OnResize(e);
-        }
-
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            // Capturar entrada del usuario para rotar la cámara
-            if (Keyboard.GetState().IsKeyDown(Key.Left))
-            {
-                yaw -= 1f; // Girar a la izquierda
-            }
-            if (Keyboard.GetState().IsKeyDown(Key.Right))
-            {
-                yaw += 1f; // Girar a la derecha
-            }
-            if (Keyboard.GetState().IsKeyDown(Key.Up))
-            {
-                pitch += 1f; // Inclinar hacia arriba
-            }
-            if (Keyboard.GetState().IsKeyDown(Key.Down))
-            {
-                pitch -= 1f; // Inclinar hacia abajo
-            }
+            
 
             base.OnUpdateFrame(e);
         }
 
-        
 
+        private void InitObjects()
+        {
+            //---- -------tv
+            Part pantalla = new Part(StandardGeometry.CreateCube(32f, 18f, 4f, Color.Gray));
+            Part soporte = new Part(StandardGeometry.CreateCube(4f, 8f, 4f, Color.Black), new Vertex(0f, -13f, 0f));
+            IObject tv = new IObject();
+            tv.addPart("pantalla", pantalla);
+            tv.addPart("soporte", soporte);
+
+            //--- --------- florero
+            Part cuello = new Part();
+            cuello.AddFace("cuello", new Face(PlanarGeometry.createCurvedSurface(4f, 2f), Color.BlueViolet));
+            Part cuerpo = new Part(StandardGeometry.CreateSphere(4f, 36), new Vertex(0f, -3.25f, 0f));
+            IObject vase = new IObject(new Vertex(12f, 16f, 0));
+            vase.addPart("cuello", cuello);
+            vase.addPart("cuerpo", cuerpo);
+
+            //--------- parlante
+            Part diseno = new Part(new Vertex(0f, -2f, 3.25f));
+            diseno.AddFace("1", new Face(PlanarGeometry.createCircle(3f, new Vertex(0f, 0f, 0f)), Color.DarkGray, MyPrimitiveType.TriangleFan));
+            //Part diseno = new Part(StandardGeometry.CreateCube(6f, 6f, 1f, Color.DarkGray), new Vertex(0f, -1.5f, 3f));
+            Part parlCuerpo = new Part(StandardGeometry.CreateCube(8f, 12f, 6f, Color.Black));
+            IObject speaker = new IObject(new Vertex(-20f, -12.0f, -0.0f));
+            speaker.addPart("diseno", diseno);
+            speaker.addPart("cuerpo", parlCuerpo);
+
+            scene = new Scene(new Vertex(0f, 0f, 0f));
+            scene.AddObject("televisor", tv);
+            scene.AddObject("parlante", speaker);
+            scene.AddObject("florero", vase);
+
+            scene.Translate();
+        }
 
 
     }
+    
 }
 
 

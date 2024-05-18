@@ -11,22 +11,27 @@ namespace Graphic3D.Models
     public class Part
     {
         // Almacena las caras de una parte, el id de la cara (como un número), y el valor = Face
-        public Dictionary<int, Face> Faces { get; private  set; } 
-        public Vertex Center { get; set; } = new Vertex(0f, 0f, 0f);
+        public Dictionary<string, Face> Faces { get; private  set; }
+        public Vertex Center = new Vertex(0f, 0f, 0f) ;
         public MyPrimitiveType PType { get; set; } = MyPrimitiveType.Triangles;
-
+        private Vertex _center = new Vertex(0f, 0f, 0f);
         public Part()
         {
-            Faces = new Dictionary<int, Face>();
+            Faces = new Dictionary<string, Face>();
         }
 
-        public Part(Dictionary<int, Face> faces, MyPrimitiveType type = MyPrimitiveType.Triangles)
+        public Part(Dictionary<string, Face> faces, MyPrimitiveType type = MyPrimitiveType.Triangles)
         {
             Faces = faces;
             PType = type;
         }
+        public Part(Vertex center)
+        {
+            Faces = new Dictionary<string, Face>();
+            Center = center;
+        }
 
-        public Part(Dictionary<int, Face> faces,Vertex center,MyPrimitiveType type = MyPrimitiveType.Triangles)
+        public Part(Dictionary<string, Face> faces,Vertex center,MyPrimitiveType type = MyPrimitiveType.Triangles)
         {
             Faces = faces;
             Center = center;
@@ -34,9 +39,9 @@ namespace Graphic3D.Models
         }
 
         // Agrega o actualiza una cara
-        public void AddFace(int id, Face face)
+        public void AddFace(string name, Face face)
         {
-            Faces[id] = face;
+            Faces.Add(name, face);
         }
 
         public void ClearFaces()
@@ -49,16 +54,16 @@ namespace Graphic3D.Models
             //Console.WriteLine("part center: " + Center);
             foreach (var face in Faces.Values)
             {
-                face.Translate(center + Center,x, y, z);
+                face.Translate(x, y, z);
             }
         }
 
         public void Translate(float x = 0, float y = 0, float z = 0)
         {
-            
+            _center = Center + new Vertex(x, y, z);
             foreach (var face in Faces.Values)
             {
-                face.Translate(Center, x, y, z);
+                face.Translate(Center,x, y, z);
             }
         }
 
@@ -72,6 +77,7 @@ namespace Graphic3D.Models
 
         public void Rotate(float x, float y, float z)
         {
+            //Console.WriteLine("part center: " + Center);
             foreach (var face in Faces.Values)
             {
                 face.Rotate(x, y, z);
@@ -86,11 +92,19 @@ namespace Graphic3D.Models
             }
         }
 
+        public void Rotate(Vertex center, float angle,string axis)
+        {
+            foreach (var face in Faces.Values)
+            {
+                face.Rotate(center, angle, axis);
+            }
+        }
+
         public void Draw()
         {
             foreach (var face in Faces)
             {
-                face.Value.Draw();
+                face.Value.Draw(Center);
             }
         }
 

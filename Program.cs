@@ -19,16 +19,17 @@ namespace Graphic3D
         static void Main(string[] args)
         {
 
-            Application.EnableVisualStyles();
+            /*Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
-            /*using (Window game = new Window())
+            Application.Run(new Form1());*/
+            using (Window game = new Window())
             {
                 game.Run();
-            }*/
+            }
 
 
         }
+
         static void test1()
         {
             string currentDirectory = Directory.GetParent(Directory.GetParent(Directory.GetCurrentDirectory()).FullName).FullName;

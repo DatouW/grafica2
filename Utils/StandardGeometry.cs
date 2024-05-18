@@ -9,10 +9,10 @@ namespace Graphic3D.Utils
     public static class StandardGeometry
     {
         //triangles
-        public static Dictionary<int, Face> CreateSphere(float radius, int segments)
+        public static Dictionary<string, Face> CreateSphere(float radius, int segments)
         {
            
-            Dictionary<int, Face> faces = new Dictionary<int, Face>();
+            Dictionary<string, Face> faces = new Dictionary<string, Face>();
 
             for (int i = 0; i <= segments; i++)
             {
@@ -38,14 +38,14 @@ namespace Graphic3D.Utils
                     face.AddPoint(p2);
                     face.AddPoint(p4);
                 }
-                faces.Add(i, face);
+                faces.Add(i+"", face);
             }
             return faces;
         }
 
-        public static Dictionary<int, Face> CreateCube(float width, float height, float length, Color color)
+        public static Dictionary<string, Face> CreateCube(float width, float height, float length, Color color)
         {
-            Dictionary<int, Face> faces = new Dictionary<int, Face>();
+            Dictionary<string, Face> faces = new Dictionary<string, Face>();
 
             Vertex[] Vertices =
             {
@@ -89,7 +89,7 @@ namespace Graphic3D.Utils
 
                     //Console.WriteLine(Vertices[Indices[i + j]]);
                 }
-                faces.Add(i / 6, face);
+                faces.Add(i / 6 + "", face);
             }
             return faces;
         }

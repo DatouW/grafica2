@@ -11,7 +11,7 @@ namespace Graphic3D
     {
         
         private Scene scene = new Scene();
-    
+        public IObject obj = new IObject();
 
         public CustomGLControl()
         : base()
@@ -33,6 +33,7 @@ namespace Graphic3D
 
             GL.LoadIdentity();
 
+            //obj.Draw();
             scene.Draw();
             Console.WriteLine("onpaint.....");
 

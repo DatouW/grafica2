@@ -2,6 +2,7 @@
 using Graphic3D.Utils;
 using OpenTK;
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace Graphic3D
@@ -17,7 +18,10 @@ namespace Graphic3D
         {
             InitializeComponent();
             InitializeGLControl();
+            
         }
+
+        
 
 
         private void open_Click(object sender, EventArgs e)
@@ -47,7 +51,7 @@ namespace Graphic3D
                             glControl.Invalidate();
                             DisplayTreeNode(scene);
                             Console.WriteLine("JSON data loaded successfully.");
-                            //InitAnimation();
+                            
                         }
                         catch (Exception ex)
                         {
@@ -65,35 +69,6 @@ namespace Graphic3D
                 {
                     Console.WriteLine($"Error loading JSON: {ex.Message}");
                 }
-            }
-        }
-
-        private void InitAnimation()
-        {
-            int animationStep = 0;
-            int AnimationDelay = 100;
-            if (scene.Objects.TryGetValue("florero", out IObject florero))
-            {
-                
-                var animationTimer = new Timer();
-                animationTimer.Interval = AnimationDelay;
-                animationTimer.Tick += (s, e) =>
-                {
-                    if (animationStep < 10)
-                    {
-                        Console.WriteLine("animation???");
-                        florero.Translate(new Vertex(0,0,0),animationStep, 0f, 0f);
-                        glControl.Invalidate();
-                        animationStep++;
-                    }
-                    else
-                    {
-                        
-                        animationTimer.Stop();
-                        animationTimer.Dispose();
-                    }
-                };
-                animationTimer.Start(); 
             }
         }
 
@@ -152,7 +127,6 @@ namespace Graphic3D
         {
             TreeNode selectedNode = sceneTree.SelectedNode;
             label1.Text = "Nodo seleccionado: " + selectedNode.Text;
-            
         }
 
         private NumericUpDown scaleX;
@@ -235,7 +209,7 @@ namespace Graphic3D
             {
                 if (selected.Tag is Scene scene)
                 {
-                    scene.Rotate((float)rotX.Value, (float)rotY.Value, (float)rotZ.Value);
+                    scene.Rotate(scene.Center,(float)rotX.Value, (float)rotY.Value, (float)rotZ.Value);
                 }
                 else if (selected.Tag is IObject selectedObject)
                 {
@@ -243,7 +217,7 @@ namespace Graphic3D
                 }
                 else if (selected.Tag is Part selectedPart)
                 {
-                    selectedPart.Rotate(selectedPart.Center,(float)rotX.Value, (float)rotY.Value, (float)rotZ.Value);
+                    selectedPart.Rotate(selectedPart.Center, (float)rotX.Value, (float)rotY.Value, (float)rotZ.Value);
                 }
                 else
                 {
@@ -632,7 +606,6 @@ namespace Graphic3D
 
         }
 
-        
     }
 
 }
